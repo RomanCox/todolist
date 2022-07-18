@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import {FilterValuesType} from "./App";
 
 const TodoListStyled = styled.div`
   margin-right: 30px;
@@ -16,9 +17,9 @@ export type TaskType = {
 type TodolistType = {
     title: string,
     tasks: Array<TaskType>,
+    deleteTask: (id: string) => void,
+    setFilter: (value: FilterValuesType) => void,
 }
-
-
 
 export const Todolist = (props: TodolistType) => {
     return (
@@ -29,20 +30,15 @@ export const Todolist = (props: TodolistType) => {
                 <button>+</button>
             </TodolistContentStyled>
             <ul>
-                <li><input type="checkbox" checked={props.tasks[0].isDone}/>
-                    <span>{props.tasks[0].title}</span>
-                </li>
-                <li><input type="checkbox" checked={props.tasks[1 ].isDone}/>
-                    <span>{props.tasks[1].title}</span>
-                </li>
-                <li><input type="checkbox" checked={props.tasks[2].isDone}/>
-                    <span>{props.tasks[2].title}</span>
-                </li>
+                {props.tasks.map(task => <li><input type="checkbox" checked={task.isDone}/>
+                    <span>{task.title}</span>
+                    <button onClick={ () => props.deleteTask(task.id) }>x</button>
+                </li>)}
             </ul>
             <div>
-                <button>All</button>
-                <button>Active</button>
-                <button>Competed</button>
+                <button onClick={ () => props.setFilter('all') }>All</button>
+                <button onClick={ () => props.setFilter('active') }>Active</button>
+                <button onClick={ () => props.setFilter('completed') }>Competed</button>
             </div>
         </TodoListStyled>
     );
