@@ -1,48 +1,57 @@
 import React, {useState} from 'react';
-import styled from 'styled-components';
+import {AppContainer} from './AppStyled';
 import {TaskType, Todolist} from './Todolist';
-import { v4 as uuid } from 'uuid';
+import {v1} from 'uuid';
 
-const AppStyled = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  padding: 30px;
-`
 export type FilterValuesType = 'all' | 'completed' | 'active';
 
 
 export const App = () => {
 
     const [tasks, setTasks] = useState<Array<TaskType>>([
-        {id: uuid(), title: 'CSS&HTML', isDone: true,},
-        {id: uuid(), title: 'JS', isDone: true,},
-        {id: uuid(), title: 'REACT', isDone: false,},
+        {id: v1(), title: 'CSS&HTML', isDone: true,},
+        {id: v1(), title: 'JS', isDone: true,},
+        {id: v1(), title: 'REACT', isDone: false,},
     ]);
     const [filter, setFilter] = useState<FilterValuesType>('all')
 
     const deleteTask = (id: string) => {
         setTasks(tasks.filter(task => task.id !== id));
     }
+    const addTask = (title: string) => {
+        let newTask = {id: v1(), title: title, isDone: false};
+        let newTasksForTodoList = [newTask, ...tasks];
+        setTasks(newTasksForTodoList);
+    }
 
-    let tasksForToDo = tasks;
+    let tasksForTodo = tasks;
 
     if (filter === 'active') {
-        tasksForToDo = tasks.filter(task => !task.isDone)
+        tasksForTodo = tasks.filter(task => !task.isDone)
     }
     if (filter === 'completed') {
-        tasksForToDo = tasks.filter(task => task.isDone)
+        tasksForTodo = tasks.filter(task => task.isDone)
+    }
+
+    const onChangeTaskStatus = (taskID: string, isDone: boolean) => {
+        let task = tasks.find(task => task.id === taskID);
+        if (task) {
+            task.isDone = isDone
+        }
+        setTasks([...tasks])
     }
 
     return (
-        <AppStyled>
+        <AppContainer>
             <Todolist
                 title='What to Learn'
-                tasks={tasksForToDo}
+                tasks={tasksForTodo}
                 deleteTask={deleteTask}
                 setFilter={setFilter}
+                addTask={addTask}
+                onChangeTaskStatus={onChangeTaskStatus}
+                filter={filter}
             />
-        </AppStyled>
+        </AppContainer>
     );
 };
