@@ -1,10 +1,11 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 import {FilterValuesType} from './App';
 import {
-    ButtonStyled,
+    ButtonStyled, DeleteButtonStyled,
     ErrorMessageStyled,
     InputStyled,
     TaskStyled,
+    TitleContainerStyled,
     TitleStyled,
     TodolistContentStyled,
     TodoListStyled
@@ -17,13 +18,15 @@ export type TaskType = {
 }
 
 type TodolistType = {
+    id: string,
     title: string,
     tasks: Array<TaskType>,
-    deleteTask: (id: string) => void,
-    setFilter: (value: FilterValuesType) => void,
-    addTask: (title: string) => void,
-    onChangeTaskStatus: (taskID: string, isDone: boolean) => void,
-    filter: FilterValuesType
+    deleteTask: (id: string, todoListId: string) => void,
+    changeFilter: (value: FilterValuesType, todoListId: string) => void,
+    addTask: (title: string, todoListId: string) => void,
+    onChangeTaskStatus: (taskID: string, isDone: boolean, todoListId: string) => void,
+    filter: FilterValuesType,
+    removeTodoList: (todoListId: string) => void,
 }
 
 export const Todolist = (props: TodolistType) => {
@@ -50,29 +53,39 @@ export const Todolist = (props: TodolistType) => {
         bgColor.completed = 'aquamarine'
     }
 
-    const onAllFilterHandler = () => props.setFilter('all')
-    const onActiveFilterHandler = () => props.setFilter('active')
-    const onCompletedFilterHandler = () => props.setFilter('completed')
+    const onAllClickHandler = () => {
+        props.changeFilter('all', props.id)
+    }
+    const onActiveClickHandler = () => props.changeFilter('active', props.id)
+    const onCompletedClickHandler = () => props.changeFilter('completed', props.id)
 
     const addTaskHandler = () => {
         if (newTaskTitle.trim() === '') {
             setError('Title is required')
+            setNewTaskTitle('')
             return
         }
-        props.addTask(newTaskTitle.trim());
+        props.addTask(newTaskTitle.trim(), props.id);
         setNewTaskTitle('');
     }
     const onKeyPressHandler = (e: KeyboardEvent<HTMLInputElement>) => {
         setError(null)
         if (e.key === 'Enter') {
-            props.addTask(newTaskTitle);
+            props.addTask(newTaskTitle, props.id);
             setNewTaskTitle('');
         }
     }
 
+    const removeTodoHandler = () => {
+        props.removeTodoList(props.id)
+    }
+
     return (
         <TodoListStyled>
-            <TitleStyled>{props.title}</TitleStyled>
+            <TitleContainerStyled>
+                <TitleStyled>{props.title}</TitleStyled>
+                <DeleteButtonStyled onClick={removeTodoHandler}>x</DeleteButtonStyled>
+            </TitleContainerStyled>
             <TodolistContentStyled>
                 <InputStyled
                     value={newTaskTitle}
@@ -84,34 +97,32 @@ export const Todolist = (props: TodolistType) => {
                 {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
             </TodolistContentStyled>
             <ul>
-                {props.tasks.map(task => {
-                    const onClickHandler = () => props.deleteTask(task.id)
+                {props.tasks.map(m => {
+                    const onClickHandler = () => props.deleteTask(m.id, props.id)
                     const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-                        props.onChangeTaskStatus(task.id, e.currentTarget.checked)
+                        props.onChangeTaskStatus(m.id, e.currentTarget.checked, props.id)
                     }
                     let opacity = '1';
-                    if (task.isDone) {
+                    if (m.isDone) {
                         opacity = '0.5'
                     }
 
-                    return <li key={task.id}>
-                        <TaskStyled opacity={opacity}>
-                            <input
-                                type='checkbox'
-                                checked={task.isDone}
-                                onChange={onChangeHandler}
-                            />
-                            <span>{task.title}</span>
-                            <button onClick={onClickHandler}>x</button>
-                        </TaskStyled>
-                    </li>
+                    return <TaskStyled key={m.id} opacity={opacity}>
+                        <input
+                            type='checkbox'
+                            checked={m.isDone}
+                            onChange={onChangeHandler}
+                        />
+                        <span>{m.title}</span>
+                        <button onClick={onClickHandler}>x</button>
+                    </TaskStyled>
 
                 })}
             </ul>
             <div>
-                <ButtonStyled onClick={onAllFilterHandler} bgColor={bgColor.all}>All</ButtonStyled>
-                <ButtonStyled onClick={onActiveFilterHandler} bgColor={bgColor.active}>Active</ButtonStyled>
-                <ButtonStyled onClick={onCompletedFilterHandler} bgColor={bgColor.completed}>Completed</ButtonStyled>
+                <ButtonStyled onClick={onAllClickHandler} bgColor={bgColor.all}>All</ButtonStyled>
+                <ButtonStyled onClick={onActiveClickHandler} bgColor={bgColor.active}>Active</ButtonStyled>
+                <ButtonStyled onClick={onCompletedClickHandler} bgColor={bgColor.completed}>Completed</ButtonStyled>
             </div>
         </TodoListStyled>
     );
