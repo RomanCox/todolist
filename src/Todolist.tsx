@@ -1,6 +1,14 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 import {FilterValuesType} from './App';
-import {ButtonStyled, ErrorMessageStyled, InputStyled, TitleStyled, TodolistContentStyled, TodoListStyled} from './TodoListStyled';
+import {
+    ButtonStyled,
+    ErrorMessageStyled,
+    InputStyled,
+    TaskStyled,
+    TitleStyled,
+    TodolistContentStyled,
+    TodoListStyled
+} from './TodoListStyled';
 
 export type TaskType = {
     id: string,
@@ -24,8 +32,8 @@ export const Todolist = (props: TodolistType) => {
 
     const onNewTaskTitleHandler = (e: ChangeEvent<HTMLInputElement>) => setNewTaskTitle(e.currentTarget.value);
 
-    let border = 'black 1px solid'
-        if (error) {
+    let border = 'black 1px solid';
+    if (error) {
         border = 'red 2px solid'
     }
 
@@ -33,7 +41,7 @@ export const Todolist = (props: TodolistType) => {
         all: 'default',
         active: 'default',
         completed: 'default',
-    }
+    };
     if (props.filter === 'all') {
         bgColor.all = 'aquamarine'
     } else if (props.filter === 'active') {
@@ -41,6 +49,10 @@ export const Todolist = (props: TodolistType) => {
     } else if (props.filter === 'completed') {
         bgColor.completed = 'aquamarine'
     }
+
+    const onAllFilterHandler = () => props.setFilter('all')
+    const onActiveFilterHandler = () => props.setFilter('active')
+    const onCompletedFilterHandler = () => props.setFilter('completed')
 
     const addTaskHandler = () => {
         if (newTaskTitle.trim() === '') {
@@ -50,7 +62,6 @@ export const Todolist = (props: TodolistType) => {
         props.addTask(newTaskTitle.trim());
         setNewTaskTitle('');
     }
-
     const onKeyPressHandler = (e: KeyboardEvent<HTMLInputElement>) => {
         setError(null)
         if (e.key === 'Enter') {
@@ -58,10 +69,6 @@ export const Todolist = (props: TodolistType) => {
             setNewTaskTitle('');
         }
     }
-
-    const onAllFilterHandler = () => props.setFilter('all')
-    const onActiveFilterHandler = () => props.setFilter('active')
-    const onCompletedFilterHandler = () => props.setFilter('completed')
 
     return (
         <TodoListStyled>
@@ -82,15 +89,23 @@ export const Todolist = (props: TodolistType) => {
                     const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
                         props.onChangeTaskStatus(task.id, e.currentTarget.checked)
                     }
+                    let opacity = '1';
+                    if (task.isDone) {
+                        opacity = '0.5'
+                    }
 
-                    return <li key={task.id}><input
-                        type='checkbox'
-                        checked={task.isDone}
-                        onChange={onChangeHandler}
-                    />
-                        <span>{task.title}</span>
-                        <button onClick={onClickHandler}>x</button>
+                    return <li key={task.id}>
+                        <TaskStyled opacity={opacity}>
+                            <input
+                                type='checkbox'
+                                checked={task.isDone}
+                                onChange={onChangeHandler}
+                            />
+                            <span>{task.title}</span>
+                            <button onClick={onClickHandler}>x</button>
+                        </TaskStyled>
                     </li>
+
                 })}
             </ul>
             <div>

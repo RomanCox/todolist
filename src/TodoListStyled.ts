@@ -5,6 +5,9 @@ type InputStyledPropsType = {
 type ButtonStyledPropsType = {
     bgColor: string,
 }
+type TaskStyledType = {
+    opacity: string
+}
 
 export const TodoListStyled = styled.div`
   margin-right: 30px;
@@ -25,4 +28,8 @@ export const ButtonStyled = styled.button<ButtonStyledPropsType>`
   background-color: ${props => props.bgColor};
   border-radius: 2px;
   border: 1px solid grey;
+`
+
+export const TaskStyled = styled.div<TaskStyledType>`
+  opacity: ${props => props.opacity};
 `
