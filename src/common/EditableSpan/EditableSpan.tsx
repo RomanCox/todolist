@@ -17,5 +17,4 @@ export const EditableSpan = (props: EditableSpanPropsType) => {
     return editMode
         ? <ChangeItem title={props.title} changeTitle={props.changeTitle} setEditMode={setEditMode} />
         : <EditableSpanStyled onDoubleClick={activateEditMode}>{props.title}</EditableSpanStyled>
-
 };
