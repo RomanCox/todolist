@@ -1,4 +1,6 @@
+import { Button, ButtonProps } from '@mui/material';
 import styled from 'styled-components';
+
 type InputStyledPropsType = {
     border: string,
 }
@@ -12,3 +14,10 @@ export const InputStyled = styled.input<InputStyledPropsType>`
 export const ErrorMessageStyled = styled.div`
   color: red;
 `
+
+export const ButtonAdd = styled(Button)<ButtonProps>(
+    {
+        fontWeight: '700 !important',
+        letterSpacing: `3px !important`,
+    }
+)

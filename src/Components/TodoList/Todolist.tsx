@@ -7,8 +7,10 @@ import {
     TitleStyled,
     TodoListStyled
 } from './TodoListStyled';
-import {AddItem} from '../../common/AddItem/AddItem';
-import {EditableSpan} from '../../common/EditableSpan/EditableSpan';
+import { AddItem } from '../../common/AddItem/AddItem';
+import { EditableSpan } from '../../common/EditableSpan/EditableSpan';
+import { Delete } from '@mui/icons-material';
+import { IconButton, Button, Checkbox  } from '@mui/material';
 
 export type TaskType = {
     id: string,
@@ -66,7 +68,9 @@ export const Todolist = (props: TodolistPropsType) => {
         <TodoListStyled>
             <TitleContainerStyled>
                 <TitleStyled><EditableSpan title={props.title} changeTitle={changeTodoListTitle}/></TitleStyled>
-                <DeleteButtonStyled onClick={removeTodoHandler}>x</DeleteButtonStyled>
+                <IconButton aria-label="delete" onClick={removeTodoHandler}>
+                    <Delete />
+                </IconButton>
             </TitleContainerStyled>
             <AddItem addItem={addItem} />
             <ul>
@@ -85,21 +89,23 @@ export const Todolist = (props: TodolistPropsType) => {
                     }
 
                     return <TaskStyled key={m.id} opacity={opacity}>
-                        <input
-                            type='checkbox'
+                        <Checkbox
                             checked={m.isDone}
                             onChange={onChangeHandler}
+                            color={'secondary'}
                         />
                         <EditableSpan title={m.title} changeTitle={changeTaskTitle} />
-                        <button onClick={onClickHandler}>x</button>
+                        <IconButton aria-label="delete" onClick={onClickHandler}>
+                            <Delete />
+                        </IconButton>
                     </TaskStyled>
 
                 })}
             </ul>
             <div>
-                <ButtonStyled onClick={onAllClickHandler} bgColor={bgColor.all}>All</ButtonStyled>
-                <ButtonStyled onClick={onActiveClickHandler} bgColor={bgColor.active}>Active</ButtonStyled>
-                <ButtonStyled onClick={onCompletedClickHandler} bgColor={bgColor.completed}>Completed</ButtonStyled>
+                <Button color={'secondary'} variant={props.filter === 'all' ? 'outlined' : 'text'} onClick={onAllClickHandler}>All</Button>
+                <Button color={'primary'} variant={props.filter === 'active' ? 'outlined' : 'text'} onClick={onActiveClickHandler}>Active</Button>
+                <Button color={'error'} variant={props.filter === 'completed' ? 'outlined' : 'text'} onClick={onCompletedClickHandler}>Completed</Button>
             </div>
         </TodoListStyled>
     );

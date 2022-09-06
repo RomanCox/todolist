@@ -3,6 +3,8 @@ import {AppContainer, ContentStyled} from './AppStyled';
 import {TaskType, Todolist} from './Components/TodoList/Todolist';
 import {v1} from 'uuid';
 import {AddItem} from './common/AddItem/AddItem';
+import {AppBar, Toolbar, IconButton, Typography, Button, Container, Grid, Paper} from "@mui/material";
+import {Menu} from "@mui/icons-material";
 
 export type FilterValuesType = 'all' | 'completed' | 'active';
 export type TodoListType = {
@@ -33,7 +35,7 @@ export const App = () => {
             {id: v1(), title: 'GraphQL', isDone: false,},
         ],
         [todoList2]: [
-            {id: v1(), title: 'MIlK', isDone: true,},
+            {id: v1(), title: 'MILK', isDone: true,},
             {id: v1(), title: 'BOOK', isDone: true,},
             {id: v1(), title: 'BEER', isDone: false,},
         ]
@@ -99,32 +101,51 @@ export const App = () => {
 
     return (
         <AppContainer>
-            <AddItem addItem={addTodoList}/>
-            <ContentStyled>
-                {todoLists.map(m => {
-                    let tasksForTodo: Array<TaskType> = tasks[m.id];
-                    if (m.filter === 'active') {
-                        tasksForTodo = tasks[m.id].filter(f => !f.isDone)
-                    }
-                    if (m.filter === 'completed') {
-                        tasksForTodo = tasks[m.id].filter(f => f.isDone)
-                    }
-                    return <Todolist
-                        key={m.id}
-                        id={m.id}
-                        title={m.title}
-                        tasks={tasksForTodo}
-                        deleteTask={deleteTask}
-                        changeFilter={changeFilter}
-                        addTask={addTask}
-                        changeTaskStatus={changeTaskStatus}
-                        filter={m.filter}
-                        removeTodoList={removeTodoList}
-                        changeTaskTitle={changeTaskTitle}
-                        changeTodoListTitle={changeTodoListTitle}
-                    />
-                })}
-            </ContentStyled>
+            <AppBar position={'static'}>
+                <Toolbar>
+                    <IconButton edge={'start'} color={'inherit'} aria-label={'menu'}>
+                        <Menu/>
+                    </IconButton>
+                    <Typography variant={'h6'}>
+                        News
+                    </Typography>
+                    <Button color={'inherit'}>Login</Button>
+                </Toolbar>
+            </AppBar>
+            <Container fixed>
+                <Grid container style={{ padding: '20px' }}>
+                    <AddItem addItem={addTodoList}/>
+                </Grid>
+                <Grid container spacing={3}>
+                    {todoLists.map(m => {
+                        let tasksForTodo: Array<TaskType> = tasks[m.id];
+                        if (m.filter === 'active') {
+                            tasksForTodo = tasks[m.id].filter(f => !f.isDone)
+                        }
+                        if (m.filter === 'completed') {
+                            tasksForTodo = tasks[m.id].filter(f => f.isDone)
+                        }
+                        return <Grid item>
+                            <Paper style={{ padding: '10px' }}>
+                                <Todolist
+                                    key={m.id}
+                                    id={m.id}
+                                    title={m.title}
+                                    tasks={tasksForTodo}
+                                    deleteTask={deleteTask}
+                                    changeFilter={changeFilter}
+                                    addTask={addTask}
+                                    changeTaskStatus={changeTaskStatus}
+                                    filter={m.filter}
+                                    removeTodoList={removeTodoList}
+                                    changeTaskTitle={changeTaskTitle}
+                                    changeTodoListTitle={changeTodoListTitle}
+                                />
+                            </Paper>
+                        </Grid>
+                    })}
+                </Grid>
+            </Container>
         </AppContainer>
     );
 };

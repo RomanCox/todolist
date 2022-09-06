@@ -1,7 +1,10 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 import {
-    AddItemContainerStyled, ErrorMessageStyled, InputStyled
+    AddItemContainerStyled, ErrorMessageStyled, InputStyled, ButtonAdd
 } from './AddItemStyled';
+import { TextField, IconButton } from '@mui/material';
+import { PlaylistAddCircle, AddBox } from "@mui/icons-material";
+
 
 type AddItemPropsType = {
     addItem: (title: string) => void,
@@ -37,14 +40,18 @@ export const AddItem = (props: AddItemPropsType) => {
 
     return (
             <AddItemContainerStyled>
-                <InputStyled
+                <TextField
                     value={newTaskTitle}
                     onChange={onNewTaskTitleHandler}
                     onKeyDown={onKeyPressHandler}
-                    border={border}
+                    label={'Task name'}
+                    error={!!error}
+                    helperText={error}
                 />
-                <button onClick={onClickHandler}>+</button>
-                {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
+                <IconButton color={'secondary'} onClick={onClickHandler} >
+                    {/*<PlaylistAddCircle sx={{fontSize: '40px'}} />*/}
+                    <AddBox sx={{fontSize: '40px'}} />
+                </IconButton>
             </AddItemContainerStyled>
     );
 };

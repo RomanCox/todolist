@@ -2,6 +2,7 @@ import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 import {
     ChangeItemContainerStyled, ErrorMessageStyled, InputStyled
 } from './ChangeItemStyled';
+import { TextField } from '@mui/material';
 
 type AddItemPropsType = {
     title: string
@@ -44,13 +45,15 @@ export const ChangeItem = (props: AddItemPropsType) => {
 
     return (
             <ChangeItemContainerStyled>
-                <InputStyled
+                <TextField
                     value={newTitle}
                     onBlur={disActivateEditMode}
                     onChange={onChangeHandler}
                     onKeyUp={onKeyUpHandler}
-                    border={border}
+                    error={!!error}
                     autoFocus
+                    variant={'standard'}
+                    color={'secondary'}
                 />
                 {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
             </ChangeItemContainerStyled>
