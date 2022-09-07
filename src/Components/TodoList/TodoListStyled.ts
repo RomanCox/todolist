@@ -1,7 +1,4 @@
 import styled from 'styled-components';
-type ButtonStyledPropsType = {
-    bgColor: string,
-}
 type TaskStyledType = {
     opacity: string
 }
@@ -18,16 +15,6 @@ export const TitleContainerStyled = styled.div`
 `
 
 export const TitleStyled = styled.h3``
-
-export const DeleteButtonStyled = styled.button`
-  height: 20px;
-`
-
-export const ButtonStyled = styled.button<ButtonStyledPropsType>`
-  background-color: ${props => props.bgColor};
-  border-radius: 2px;
-  border: 1px solid grey;
-`
 
 export const TaskStyled = styled.li<TaskStyledType>`
   opacity: ${props => props.opacity};

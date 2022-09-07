@@ -1,7 +1,6 @@
 import React, {ChangeEvent} from 'react';
 import {FilterValuesType} from '../../App';
 import {
-    ButtonStyled, DeleteButtonStyled,
     TaskStyled,
     TitleContainerStyled,
     TitleStyled,

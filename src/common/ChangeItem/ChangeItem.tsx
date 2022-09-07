@@ -1,7 +1,5 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
-import {
-    ChangeItemContainerStyled, ErrorMessageStyled, InputStyled
-} from './ChangeItemStyled';
+import {ChangeItemContainerStyled, ErrorMessageStyled} from './ChangeItemStyled';
 import { TextField } from '@mui/material';
 
 type AddItemPropsType = {
@@ -14,10 +12,6 @@ export const ChangeItem = (props: AddItemPropsType) => {
 
     const [newTitle, setNewTitle] = useState<string>(props.title);
     const [error, setError] = useState<string | null>(null);
-    let border = 'black 1px solid';
-    if (error) {
-        border = 'red 2px solid'
-    }
 
     const disActivateEditMode = () => {
         if (newTitle.trim() === '') {

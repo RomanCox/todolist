@@ -1,9 +1,7 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
-import {
-    AddItemContainerStyled, ErrorMessageStyled, InputStyled, ButtonAdd
-} from './AddItemStyled';
+import {AddItemContainerStyled} from './AddItemStyled';
 import { TextField, IconButton } from '@mui/material';
-import { PlaylistAddCircle, AddBox } from "@mui/icons-material";
+import { AddBox } from "@mui/icons-material";
 
 
 type AddItemPropsType = {
@@ -15,11 +13,6 @@ export const AddItem = (props: AddItemPropsType) => {
     const [error, setError] = useState<string | null>(null);
 
     const onNewTaskTitleHandler = (e: ChangeEvent<HTMLInputElement>) => setNewTaskTitle(e.currentTarget.value);
-
-    let border = 'black 1px solid';
-    if (error) {
-        border = 'red 2px solid'
-    }
 
     const onClickHandler = () => {
         if (newTaskTitle.trim() === '') {
@@ -49,7 +42,6 @@ export const AddItem = (props: AddItemPropsType) => {
                     helperText={error}
                 />
                 <IconButton color={'secondary'} onClick={onClickHandler} >
-                    {/*<PlaylistAddCircle sx={{fontSize: '40px'}} />*/}
                     <AddBox sx={{fontSize: '40px'}} />
                 </IconButton>
             </AddItemContainerStyled>
