@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 type TaskStyledType = {
-    opacity: string
+    isDone: boolean
 }
 
 export const TodoListStyled = styled.div`
@@ -17,5 +17,5 @@ export const TitleContainerStyled = styled.div`
 export const TitleStyled = styled.h3``
 
 export const TaskStyled = styled.li<TaskStyledType>`
-  opacity: ${props => props.opacity};
+  opacity: ${props => props.isDone ? '0.5' : '1'};
 `

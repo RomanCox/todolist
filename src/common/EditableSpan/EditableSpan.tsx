@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {EditableSpanStyled} from './EditableSpanStyled';
-import {ChangeItem} from "../ChangeItem/ChangeItem";
+import {ChangeItem} from '../ChangeItem/ChangeItem';
 
 type EditableSpanPropsType = {
     title: string,
@@ -15,6 +15,6 @@ export const EditableSpan = (props: EditableSpanPropsType) => {
     };
 
     return editMode
-        ? <ChangeItem title={props.title} changeTitle={props.changeTitle} setEditMode={setEditMode} />
+        ? <ChangeItem title={props.title} changeTitle={props.changeTitle} setEditMode={setEditMode}/>
         : <EditableSpanStyled onDoubleClick={activateEditMode}>{props.title}</EditableSpanStyled>
 };
