@@ -8,8 +8,7 @@ type AddItemPropsType = {
     setEditMode: (editMode: boolean) => void,
 }
 
-export const ChangeItem = (props: AddItemPropsType) => {
-
+export const ChangeItem = React.memo((props: AddItemPropsType) => {
     const [newTitle, setNewTitle] = useState<string>(props.title);
     const [error, setError] = useState<string | null>(null);
 
@@ -52,4 +51,4 @@ export const ChangeItem = (props: AddItemPropsType) => {
             {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
         </ChangeItemContainerStyled>
     );
-};
+});

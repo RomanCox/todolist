@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {AppContainer} from './AppStyled';
 import {TaskType, Todolist} from './Components/TodoList/Todolist';
 import {AddItem} from './common/AddItem/AddItem';
@@ -27,18 +27,18 @@ export const App = () => {
     const dispatch = useDispatch();
     const todoLists = useSelector<AppRootStateType, Array<TodoListType>>(state => state.todoLists);
 
-    const removeTodoList = (todoListId: string) => {
+    const removeTodoList = useCallback((todoListId: string) => {
         dispatch(removeTodoListAC(todoListId));
-    };
-    const addTodoList = (title: string) => {
+    }, [dispatch]);
+    const addTodoList = useCallback((title: string) => {
         dispatch(addTodoListAC(title));
-    };
-    const changeTodoListTitle = (todoListId: string, newTitle: string) => {
+    }, [dispatch]);
+    const changeTodoListTitle = useCallback((todoListId: string, newTitle: string) => {
         dispatch(changeTodoListTitleAC(todoListId, newTitle));
-    };
-    const changeFilter = (todoListId: string, value: FilterValuesType) => {
+    }, [dispatch]);
+    const changeFilter = useCallback((todoListId: string, value: FilterValuesType) => {
         dispatch(changeTodoListFilterAC(todoListId, value));
-    };
+    }, [dispatch]);
 
     return (
         <AppContainer>
@@ -59,13 +59,6 @@ export const App = () => {
                 </Grid>
                 <Grid container spacing={3}>
                     {todoLists.map(m => {
-                        // let tasksForTodo: Array<TaskType> = tasks[m.id];
-                        // if (m.filter === 'active') {
-                        //     tasksForTodo = tasks[m.id].filter(f => !f.isDone)
-                        // }
-                        // if (m.filter === 'completed') {
-                        //     tasksForTodo = tasks[m.id].filter(f => f.isDone)
-                        // }
                         return <Grid key={m.id} item>
                             <Paper style={{padding: '10px'}}>
                                 <Todolist
