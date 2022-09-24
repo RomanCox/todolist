@@ -5,7 +5,7 @@ import {AddBox} from '@mui/icons-material';
 
 
 type AddItemPropsType = {
-    addItem: (title: string) => void,
+    addItem: (title: string) => void
 }
 
 export const AddItem = React.memo((props: AddItemPropsType) => {

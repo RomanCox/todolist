@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {todoListsAPI} from '../api/todoListsAPI';
+import {TaskPriorities, TaskStatuses, todoListsAPI, UpdateTaskModelType} from '../api/todoListsAPI';
 
 export default {
     title: 'API'
@@ -20,7 +20,7 @@ export const CreateTodoList = () => {
     const [state, setState] = useState<any>(null);
     const [todoListTitle, setTodoListTitle] = useState<string>('');
     const addTodoListHandler = () => {
-        todoListsAPI.createTodoLists(todoListTitle)
+        todoListsAPI.addTodoLists(todoListTitle)
             .then((res) => {
                     setState(res.data)
                 })
@@ -111,7 +111,7 @@ export const CreateTask = () => {
     const [taskTitle, setTaskTitle] = useState<string>('');
     const [todoListId, setTodoListId] = useState<any>('');
     const addTaskHandler = () => {
-        todoListsAPI.createTask(todoListId, taskTitle)
+        todoListsAPI.addTask(todoListId, taskTitle)
             .then((res) => {
                 setState(res.data)
             })
@@ -130,8 +130,16 @@ export const UpdateTask = () => {
     const [taskTitle, setTaskTitle] = useState<string>('');
     const [todoListId, setTodoListId] = useState<any>('');
     const [taskId, setTaskId] = useState<any>('');
+    const model: UpdateTaskModelType = {
+        description: 'some description',
+        title: taskTitle,
+        status: TaskStatuses.InProgress,
+        priority: TaskPriorities.Low,
+        startDate: 'startDate',
+        deadline: 'deadline'
+    }
     const updateTaskHandler = () => {
-        todoListsAPI.changeTaskTitle(todoListId, taskId, taskTitle)
+        todoListsAPI.updateTask(todoListId, taskId, model)
             .then((res) => {
                 setState(res.data)
             })

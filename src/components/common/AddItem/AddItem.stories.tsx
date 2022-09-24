@@ -1,6 +1,6 @@
 import {ComponentMeta} from '@storybook/react';
 import {AddItem} from './AddItem';
-import {action} from "@storybook/addon-actions";
+import {action} from '@storybook/addon-actions';
 
 export default {
     title: 'AddItem Component',
