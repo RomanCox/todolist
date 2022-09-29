@@ -1,7 +1,7 @@
 import {todoListsAPI, TodoListType} from '../../../api/todoListsAPI';
 import {AppThunkType} from '../../../app/store';
 import {AppStatusesType, setAppStatusAC, SetStatusActionType} from '../../../app/appReducer';
-import {handleServerAppError, handleServerNetworkError} from "../../../utils/errorUtils.";
+import {handleServerAppError, handleServerNetworkError} from '../../../utils/errorUtils';
 
 const initialState: Array<TodoListDomainType> = [];
 
