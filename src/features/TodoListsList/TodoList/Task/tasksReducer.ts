@@ -1,6 +1,8 @@
 import {AddTodoListActionType, DeleteTodoListActionType, SetTodoListsActionType} from '../todoListsReducer';
 import {TaskPriorities, TaskStatuses, TaskType, todoListsAPI, UpdateTaskModelType} from '../../../../api/todoListsAPI';
 import {AppRootStateType, AppThunkType} from '../../../../app/store';
+import {setAppStatusAC, SetErrorActionType, SetStatusActionType} from '../../../../app/appReducer';
+import {handleServerAppError, handleServerNetworkError} from "../../../../utils/errorUtils.";
 
 const initialState: TasksStateType = {}
 
@@ -18,7 +20,7 @@ export const tasksReducer = (state: TasksStateType = initialState, action: Tasks
                 [action.payload.todoListId]: state[action.payload.todoListId]
                     .map(t => t.id === action.payload.taskId? {...t, ...action.payload.model} : t)
             }
-        case "SET-TODOLISTS": {
+        case 'SET-TODOLISTS': {
             const stateCopy = {...state};
             action.payload.todoLists.forEach(tl => {
                 stateCopy[tl.id] = []
@@ -57,32 +59,43 @@ export const updateTaskAC = (todoListId: string, taskId: string, model: UpdateDo
 
 //tasks thunk creators
 export const fetchTasksTC = (todoListId: string): AppThunkType => async dispatch => {
+    dispatch(setAppStatusAC('loading'))
     try {
         const res = await todoListsAPI.getTasks(todoListId)
         dispatch(setTasksAC(todoListId, res.data.items))
-    } catch (e: any) {
-        throw new Error(e)
+        dispatch(setAppStatusAC('succeeded'))
+    } catch (error: any) {
+        handleServerNetworkError(error, dispatch)
     }
 }
 export const addTaskTC = (todoListId: string, title: string): AppThunkType => async dispatch => {
+    dispatch(setAppStatusAC('loading'))
     try {
         const res = await todoListsAPI.addTask(todoListId, title)
-        dispatch(addTaskAC(res.data.data.item))
-    } catch (e: any) {
-        throw new Error(e)
+        if (res.data.resultCode === 0) {
+            dispatch(addTaskAC(res.data.data.item))
+            dispatch(setAppStatusAC('succeeded'))
+        } else {
+            handleServerAppError(res.data, dispatch)
+        }
+    }
+    catch (error: any) {
+        handleServerNetworkError(error, dispatch)
     }
 }
 export const deleteTaskTC = (todoListId: string, taskId: string): AppThunkType => async dispatch => {
+    dispatch(setAppStatusAC('loading'))
     try {
         await todoListsAPI.deleteTask(todoListId, taskId)
         dispatch(removeTaskAC(todoListId, taskId))
-    } catch (e: any) {
-        throw new Error(e)
+        dispatch(setAppStatusAC('succeeded'))
+    } catch (error: any) {
+        handleServerNetworkError(error, dispatch)
     }
 }
 export const updateTaskTC = (todoListId: string, taskId: string, domainModel: UpdateDomainTaskModelType): AppThunkType =>
     async (dispatch, getState: () => AppRootStateType) => {
-    try {
+        dispatch(setAppStatusAC('loading'))
         const task = getState().tasks[todoListId].find(t => t.id === taskId)
         if (!task) {
             //throw new Error('task not found in the state');
@@ -98,11 +111,19 @@ export const updateTaskTC = (todoListId: string, taskId: string, domainModel: Up
             deadline: task.deadline,
             ...domainModel
         }
-        await todoListsAPI.updateTask(todoListId, taskId, apiModel)
-        dispatch(updateTaskAC(todoListId, taskId, domainModel))
-    } catch (e: any) {
-        throw new Error(e)
-    }
+        try {
+            const res = await todoListsAPI.updateTask(todoListId, taskId, apiModel)
+            if (res.resultCode === 0) {
+                dispatch(updateTaskAC(todoListId, taskId, domainModel))
+                dispatch(setAppStatusAC('succeeded'))
+            } else {
+                handleServerAppError(res, dispatch)
+            }
+            dispatch(setAppStatusAC('succeeded'))
+        }
+        catch (error: any) {
+            handleServerNetworkError(error, dispatch)
+        }
 }
 
 // types
@@ -125,3 +146,5 @@ export type TasksActionsType =
     | SetTodoListsActionType
     | DeleteTodoListActionType
     | AddTodoListActionType
+    | SetErrorActionType
+    | SetStatusActionType

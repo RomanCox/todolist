@@ -5,10 +5,11 @@ import {AddBox} from '@mui/icons-material';
 
 
 type AddItemPropsType = {
-    addItem: (title: string) => void
+    addItem: (title: string) => void,
+    disabled?: boolean,
 }
 
-export const AddItem = React.memo((props: AddItemPropsType) => {
+export const AddItem = React.memo(({addItem, disabled = false, ...props}: AddItemPropsType) => {
     const [newTaskTitle, setNewTaskTitle] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +21,7 @@ export const AddItem = React.memo((props: AddItemPropsType) => {
             setNewTaskTitle('')
             return
         }
-        props.addItem(newTaskTitle.trim());
+        addItem(newTaskTitle.trim());
         setNewTaskTitle('');
     };
     const onKeyPressHandler = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -28,7 +29,7 @@ export const AddItem = React.memo((props: AddItemPropsType) => {
             setError(null)
         }
         if (e.key === 'Enter') {
-            props.addItem(newTaskTitle.trim());
+            addItem(newTaskTitle.trim());
             setNewTaskTitle('');
         }
     };
@@ -42,8 +43,9 @@ export const AddItem = React.memo((props: AddItemPropsType) => {
                 label={'Task name'}
                 error={!!error}
                 helperText={error}
+                disabled={disabled}
             />
-            <IconButton color={'secondary'} onClick={onClickHandler}>
+            <IconButton color={'secondary'} onClick={onClickHandler} disabled={disabled}>
                 <AddBox sx={{fontSize: '40px'}}/>
             </IconButton>
         </AddItemContainerStyled>

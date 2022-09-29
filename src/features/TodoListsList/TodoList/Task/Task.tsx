@@ -17,6 +17,7 @@ export const Task = React.memo((props: TaskPropsType) => {
 
     const deleteTask = useCallback(() => dispatch(deleteTaskTC(props.task.todoListId, props.task.id)), [props.task.todoListId, props.task.id, dispatch]);
     const changeTaskTitle = useCallback((newTitle: string) => {
+        // dispatch(updateTaskTC(props.task.todoListId, props.task.id, {title: newTitle}));
         dispatch(updateTaskTC(props.task.todoListId, props.task.id, {title: newTitle}));
     }, [dispatch, props.task.todoListId, props.task.id]);
     const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
