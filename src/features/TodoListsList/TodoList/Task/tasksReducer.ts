@@ -2,7 +2,7 @@ import {AddTodoListActionType, DeleteTodoListActionType, SetTodoListsActionType}
 import {TaskPriorities, TaskStatuses, TaskType, todoListsAPI, UpdateTaskModelType} from '../../../../api/todoListsAPI';
 import {AppRootStateType, AppThunkType} from '../../../../app/store';
 import {setAppStatusAC, SetErrorActionType, SetStatusActionType} from '../../../../app/appReducer';
-import {handleServerAppError, handleServerNetworkError} from "../../../../utils/errorUtils.";
+import {handleServerAppError, handleServerNetworkError} from '../../../../utils/errorUtils.';
 
 const initialState: TasksStateType = {}
 
