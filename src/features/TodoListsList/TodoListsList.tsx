@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect} from 'react';
-import {AppRootStateType, DispatchType} from '../../app/store';
-import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, AppRootStateType, useAppDispatch} from '../../app/store';
+import {useSelector} from 'react-redux';
 import {
     addTodoListTC,
     changeTodoListFilterAC,
@@ -13,21 +13,23 @@ import {
 import {Grid, Paper} from '@mui/material';
 import {AddItem} from '../../components/common/AddItem/AddItem';
 import {Todolist} from './TodoList/Todolist';
+import {Navigate} from 'react-router-dom';
 
 type TodoListsListPropsType = {
     demo?: boolean,
 }
 
 export const TodoListsList: React.FC<TodoListsListPropsType> = ({demo= false}) => {
-    const dispatch: DispatchType = useDispatch();
+    const dispatch: AppDispatch = useAppDispatch();
     const todoLists = useSelector<AppRootStateType, Array<TodoListDomainType>>(state => state.todoLists);
+    const isLoggedIn = useSelector<AppRootStateType, boolean>(state => state.auth.isLoggedIn);
 
     useEffect(() => {
-        if (demo) {
+        if (demo || !isLoggedIn) {
             return
         }
         dispatch(fetchTodoListsTC())
-    }, [dispatch]);
+    }, [dispatch, demo, isLoggedIn]);
 
     const removeTodoList = useCallback((todoListId: string) => {
         dispatch(deleteTodoListsTC(todoListId));
@@ -39,12 +41,16 @@ export const TodoListsList: React.FC<TodoListsListPropsType> = ({demo= false}) =
         dispatch(changeTodoListTitleTC(todoListId, newTitle));
     }, [dispatch]);
     const changeFilter = useCallback((todoListId: string, value: FilterValuesType) => {
-        dispatch(changeTodoListFilterAC(todoListId, value));
+        dispatch(changeTodoListFilterAC({id: todoListId, filter: value}));
     }, [dispatch]);
+
+    if (!isLoggedIn) {
+        return <Navigate to={'/login'} />
+    }
 
     return <>
         <Grid container style={{padding: '20px'}}>
-            <AddItem addItem={addTodoList}/>
+            <AddItem addItem={addTodoList} placeHolder={'TodoList Name'}/>
         </Grid>
         <Grid container spacing={3}>
             {todoLists.map(tl => {

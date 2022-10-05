@@ -4,8 +4,8 @@ import {AddItem} from '../../../components/common/AddItem/AddItem';
 import {EditableSpan} from '../../../components/common/EditableSpan/EditableSpan';
 import {Delete} from '@mui/icons-material';
 import {Button, IconButton} from '@mui/material';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppRootStateType, DispatchType} from '../../../app/store';
+import {useSelector} from 'react-redux';
+import {AppDispatch, AppRootStateType, useAppDispatch} from '../../../app/store';
 import {addTaskTC, fetchTasksTC} from './Task/tasksReducer';
 import {Task} from './Task/Task';
 import {TaskStatuses, TaskType} from '../../../api/todoListsAPI';
@@ -21,14 +21,15 @@ type TodoListPropsType = {
 
 export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType) => {
     const tasks = useSelector<AppRootStateType, Array<TaskType>>(state => state.tasks[props.todoList.id]);
-    const dispatch: DispatchType = useDispatch();
+
+    const dispatch: AppDispatch = useAppDispatch();
 
     useEffect(() => {
         if (demo) {
             return;
         }
         dispatch(fetchTasksTC(props.todoList.id))
-    }, [dispatch]);
+    }, [dispatch, demo, props.todoList.id]);
 
     const onAllClickHandler = () => props.changeFilter(props.todoList.id, 'all')
     const onActiveClickHandler = () => props.changeFilter(props.todoList.id, 'active')
@@ -36,7 +37,7 @@ export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType)
 
     const removeTodoHandler = useCallback(() => {
         props.removeTodoList(props.todoList.id)
-    }, [props.removeTodoList, props.todoList.id, dispatch]);
+    }, [props.removeTodoList, props.todoList.id]);
 
     const addItem = useCallback((title: string) => {
         dispatch(addTaskTC(props.todoList.id, title))
@@ -44,7 +45,7 @@ export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType)
 
     const changeTodoListTitle = useCallback((newTitle: string) => {
         props.changeTodoListTitle(props.todoList.id, newTitle)
-    }, [props.changeTodoListTitle, props.todoList.id]);
+    }, [props.todoList.id]);
 
     let tasksForTodo: Array<TaskType> = tasks;
 
@@ -63,7 +64,7 @@ export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType)
                     <Delete/>
                 </IconButton>
             </TitleContainerStyled>
-            <AddItem addItem={addItem} disabled={props.todoList.entityStatus === 'loading'} />
+            <AddItem addItem={addItem} disabled={props.todoList.entityStatus === 'loading'} placeHolder={'Task Name'}/>
             <ul>
                 {tasksForTodo.map(task => <Task key={task.id} task={task} />)}
             </ul>

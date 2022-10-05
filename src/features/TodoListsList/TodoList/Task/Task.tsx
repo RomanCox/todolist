@@ -3,17 +3,16 @@ import {TaskStyled} from './TaskStyled';
 import {EditableSpan} from '../../../../components/common/EditableSpan/EditableSpan';
 import {Delete} from '@mui/icons-material';
 import {Checkbox, IconButton} from '@mui/material';
-import {useDispatch} from 'react-redux';
 import {deleteTaskTC, updateTaskTC} from './tasksReducer';
 import {TaskStatuses, TaskType} from '../../../../api/todoListsAPI';
-import {DispatchType} from '../../../../app/store';
+import {AppDispatch, useAppDispatch} from '../../../../app/store';
 
 type TaskPropsType = {
     task: TaskType
 }
 
 export const Task = React.memo((props: TaskPropsType) => {
-    const dispatch: DispatchType = useDispatch();
+    const dispatch: AppDispatch = useAppDispatch();
 
     const deleteTask = useCallback(() => dispatch(deleteTaskTC(props.task.todoListId, props.task.id)), [props.task.todoListId, props.task.id, dispatch]);
     const changeTaskTitle = useCallback((newTitle: string) => {

@@ -7,9 +7,10 @@ import {AddBox} from '@mui/icons-material';
 type AddItemPropsType = {
     addItem: (title: string) => void,
     disabled?: boolean,
+    placeHolder?: string,
 }
 
-export const AddItem = React.memo(({addItem, disabled = false, ...props}: AddItemPropsType) => {
+export const AddItem = React.memo(({addItem, disabled = false, placeHolder = 'Enter value', ...props}: AddItemPropsType) => {
     const [newTaskTitle, setNewTaskTitle] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +41,7 @@ export const AddItem = React.memo(({addItem, disabled = false, ...props}: AddIte
                 value={newTaskTitle}
                 onChange={onNewTaskTitleHandler}
                 onKeyDown={onKeyPressHandler}
-                label={'Task name'}
+                label={placeHolder}
                 error={!!error}
                 helperText={error}
                 disabled={disabled}
