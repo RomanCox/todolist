@@ -14,15 +14,18 @@ const rootReducer = combineReducers({
     auth: authReducer,
 })
 
-export type AppRootStateType = ReturnType<typeof rootReducer>;
+export type RootReducerType = typeof rootReducer;
+
+export type AppRootStateType = ReturnType<RootReducerType>;
 
 export const store = configureStore({
     reducer: rootReducer,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(thunkMiddleware)
+    middleware: getDefaultMiddleware => getDefaultMiddleware().prepend(thunkMiddleware)
 })
 
-export type AppDispatch = typeof store.dispatch;
-export const useAppDispatch: () => AppDispatch = useDispatch;
+export type AppDispatchType = typeof store.dispatch;
+// export const useAppDispatch: () => AppDispatchType = useDispatch;
+export const useAppDispatch = () => useDispatch<AppDispatchType>();
 
 // @ts-ignore
 window.store = store;

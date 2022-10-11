@@ -1,10 +1,10 @@
 import {App} from './App';
-import {ReduxStoreProviderDecorator} from '../stories/ReduxStoreProviderDecorator';
+import {HashRouterDecorator, ReduxStoreProviderDecorator} from '../stories/ReduxStoreProviderDecorator';
 
 export default {
     title: 'App Component',
     component: App,
-    decorators: [ReduxStoreProviderDecorator]
+    decorators: [ReduxStoreProviderDecorator, HashRouterDecorator]
 }
 
 export const AppBaseExample = () => {

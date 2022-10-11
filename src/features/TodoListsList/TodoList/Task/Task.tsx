@@ -5,22 +5,22 @@ import {Delete} from '@mui/icons-material';
 import {Checkbox, IconButton} from '@mui/material';
 import {deleteTaskTC, updateTaskTC} from './tasksReducer';
 import {TaskStatuses, TaskType} from '../../../../api/todoListsAPI';
-import {AppDispatch, useAppDispatch} from '../../../../app/store';
+import {useAppDispatch} from '../../../../app/store';
 
 type TaskPropsType = {
     task: TaskType
 }
 
 export const Task = React.memo((props: TaskPropsType) => {
-    const dispatch: AppDispatch = useAppDispatch();
+    const dispatch = useAppDispatch();
 
-    const deleteTask = useCallback(() => dispatch(deleteTaskTC(props.task.todoListId, props.task.id)), [props.task.todoListId, props.task.id, dispatch]);
+    const deleteTask = useCallback(() => dispatch(deleteTaskTC({todoListId: props.task.todoListId, taskId: props.task.id})), [props.task.todoListId, props.task.id, dispatch]);
     const changeTaskTitle = useCallback((newTitle: string) => {
         // dispatch(updateTaskTC(props.task.todoListId, props.task.id, {title: newTitle}));
-        dispatch(updateTaskTC(props.task.todoListId, props.task.id, {title: newTitle}));
+        dispatch(updateTaskTC({todoListId: props.task.todoListId, taskId: props.task.id, domainModel: {title: newTitle}}));
     }, [dispatch, props.task.todoListId, props.task.id]);
     const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
-        dispatch(updateTaskTC(props.task.todoListId, props.task.id, {status: e.currentTarget.checked ? TaskStatuses.Completed : TaskStatuses.New}))
+        dispatch(updateTaskTC({todoListId: props.task.todoListId, taskId: props.task.id, domainModel: {status: e.currentTarget.checked ? TaskStatuses.Completed : TaskStatuses.New}}))
     }
 
     return <TaskStyled status={props.task.status}>

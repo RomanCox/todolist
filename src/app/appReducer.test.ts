@@ -1,4 +1,4 @@
-import {appReducer, InitialStateType, setAppStatusAC, setAppErrorAC} from './appReducer';
+import {appReducer, InitialStateType, setAppStatusAC, setAppErrorAC, initializeAppTC} from './appReducer';
 
 let startState: InitialStateType;
 
@@ -20,4 +20,10 @@ test('correct status should be set', () => {
     const endState = appReducer(startState, setAppStatusAC({status: 'loading'}));
 
     expect(endState.status).toBe('loading');
+});
+
+test('correct isInitialized should be set', () => {
+    const endState = appReducer(startState, initializeAppTC.fulfilled(undefined,'requestId'));
+
+    expect(endState.isInitialized).toBeTruthy();
 });

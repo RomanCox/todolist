@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect} from 'react';
-import {AppDispatch, AppRootStateType, useAppDispatch} from '../../app/store';
+import {AppRootStateType, useAppDispatch} from '../../app/store';
 import {useSelector} from 'react-redux';
 import {
     addTodoListTC,
     changeTodoListFilterAC,
     changeTodoListTitleTC,
-    deleteTodoListsTC,
+    deleteTodoListTC,
     fetchTodoListsTC,
     FilterValuesType,
     TodoListDomainType
@@ -20,7 +20,7 @@ type TodoListsListPropsType = {
 }
 
 export const TodoListsList: React.FC<TodoListsListPropsType> = ({demo= false}) => {
-    const dispatch: AppDispatch = useAppDispatch();
+    const dispatch = useAppDispatch();
     const todoLists = useSelector<AppRootStateType, Array<TodoListDomainType>>(state => state.todoLists);
     const isLoggedIn = useSelector<AppRootStateType, boolean>(state => state.auth.isLoggedIn);
 
@@ -32,13 +32,13 @@ export const TodoListsList: React.FC<TodoListsListPropsType> = ({demo= false}) =
     }, [dispatch, demo, isLoggedIn]);
 
     const removeTodoList = useCallback((todoListId: string) => {
-        dispatch(deleteTodoListsTC(todoListId));
+        dispatch(deleteTodoListTC(todoListId));
     }, [dispatch]);
     const addTodoList = useCallback((title: string) => {
         dispatch(addTodoListTC(title));
     }, [dispatch]);
     const changeTodoListTitle = useCallback((todoListId: string, newTitle: string) => {
-        dispatch(changeTodoListTitleTC(todoListId, newTitle));
+        dispatch(changeTodoListTitleTC({id: todoListId, title: newTitle}));
     }, [dispatch]);
     const changeFilter = useCallback((todoListId: string, value: FilterValuesType) => {
         dispatch(changeTodoListFilterAC({id: todoListId, filter: value}));

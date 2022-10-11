@@ -97,8 +97,10 @@ export type TodoListType = {
     addedDate: string,
     order: number,
 }
+export type FieldErrorType = { field: string, error: string };
 export type ResponseType<D = {}> = {
     resultCode: number,
+    fieldsErrors?: Array<FieldErrorType>,
     messages: Array<string>,
     data: D,
 }
