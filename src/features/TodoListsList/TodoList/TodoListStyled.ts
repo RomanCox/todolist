@@ -7,6 +7,7 @@ export const TodoListStyled = styled.div`
   display: flex;
   flex-direction: column;
   margin-right: 30px;
+  position: relative;
 `
 export const TitleContainerStyled = styled.div`
   display: flex;

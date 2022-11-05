@@ -11,12 +11,14 @@ export default {
     },
 } as ComponentMeta<typeof AddItem>;
 
-const callback = action('Button "add" was pressed inside the form')
-
-export const AddItemBaseExample = () => {
-    return <AddItem addItem={callback}/>
+const asyncCallback = async (...params: any[]) => {
+    action('Button "add" was pressed inside the form')(...params);
 }
 
-export const AddItemDisabledExample = () => {
-    return <AddItem addItem={callback} disabled={true} />
+export const AddItemBaseExample = (props: any) => {
+    return <AddItem addItem={asyncCallback}/>
+}
+
+export const AddItemDisabledExample = (props: any) => {
+    return <AddItem addItem={asyncCallback} disabled={true} />
 }

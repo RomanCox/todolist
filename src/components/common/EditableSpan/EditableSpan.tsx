@@ -1,11 +1,7 @@
 import React, {useState} from 'react';
 import {EditableSpanStyled} from './EditableSpanStyled';
 import {ChangeItem} from '../ChangeItem/ChangeItem';
-
-type EditableSpanPropsType = {
-    title: string,
-    changeTitle: (newTitle: string) => void,
-}
+import {EditableSpanPropsType} from './EditableSpan.types';
 
 export const EditableSpan = React.memo((props: EditableSpanPropsType) => {
     const [editMode, setEditMode] = useState<boolean>(false);

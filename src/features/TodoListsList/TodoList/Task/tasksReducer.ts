@@ -1,69 +1,59 @@
-import {addTodoListTC, deleteTodoListTC, fetchTodoListsTC} from '../todoListsReducer';
-import {TaskPriorities, TaskStatuses, TaskType, todoListsAPI, UpdateTaskModelType} from '../../../../api/todoListsAPI';
-import {AppRootStateType} from '../../../../app/store';
-import {setAppStatusAC} from '../../../../app/appReducer';
-import {handleServerAppError, handleServerNetworkError} from '../../../../utils/errorUtils';
+import {todoListsAPI} from '../../../../api/todoListsAPI';
+import {
+    TaskType, TodoListType,
+    UpdateTaskModelType
+} from '../../../../api/todoListsAPI.types';
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {AxiosError} from 'axios';
+import {todoListsAsyncActions as todoListsActions} from '../todoListsReducer';
+import {appActions} from '../../../Common/Actions/AppActions';
+import {handleAsyncServerAppError, handleAsyncServerNetworkError} from '../../../../utils/errorUtils';
+import {AppRootStateType, ThunkErrorType} from '../../../../utils/reduxUtils.types';
+import {TasksStateType, UpdateDomainTaskModelType} from './Task.types';
 
-export const fetchTasksTC = createAsyncThunk('tasks/fetchTasks', async (todoListId: string, {dispatch, rejectWithValue}) => {
-    dispatch(setAppStatusAC({status: 'loading'}));
-    const res = await todoListsAPI.getTasks(todoListId);
+const {setAppStatus} = appActions;
+
+const fetchTasks = createAsyncThunk<{tasks: TaskType[], todoListId: string}, string, ThunkErrorType>('tasks/fetchTasks', async (todoListId, thunkAPI) => {
+    thunkAPI.dispatch(setAppStatus({status: 'loading'}));
     try {
-        dispatch(setAppStatusAC({status: 'succeeded'}));
+        const res = await todoListsAPI.getTasks(todoListId);
+        thunkAPI.dispatch(setAppStatus({status: 'succeeded'}));
         return {tasks: res.data.items, todoListId};
     } catch (err) {
-        const error = err as AxiosError;
-        handleServerNetworkError(error, dispatch);
-        return rejectWithValue(null);
+        return handleAsyncServerNetworkError(err, thunkAPI);
     }
 });
-
-export const addTaskTC = createAsyncThunk('tasks/addTask', async (param: { todoListId: string, title: string }, {dispatch, rejectWithValue}) => {
-    dispatch(setAppStatusAC({status: 'loading'}));
-    const res = await todoListsAPI.addTask(param.todoListId, param.title);
+const addTask = createAsyncThunk<TaskType, { todoListId: string, title: string }, ThunkErrorType>
+    ('tasks/addTask', async (param, thunkAPI) => {
+        thunkAPI.dispatch(setAppStatus({status: 'loading'}));
     try {
+        const res = await todoListsAPI.addTask(param.todoListId, param.title);
         if (res.data.resultCode === 0) {
-            dispatch(setAppStatusAC({status: 'succeeded'}));
+            thunkAPI.dispatch(setAppStatus({status: 'succeeded'}));
             return res.data.data.item;
         } else {
-            handleServerAppError(res.data, dispatch);
-            return rejectWithValue(null);
+            handleAsyncServerAppError(res.data, thunkAPI ,false);
+            return thunkAPI.rejectWithValue({errors: res.data.messages, fieldsErrors: res.data.fieldsErrors});
         }
     } catch (err) {
-        const error = err as AxiosError;
-        handleServerNetworkError(error, dispatch);
-        return rejectWithValue(null);
+        return handleAsyncServerNetworkError(err, thunkAPI, false);
     }
 });
-
-export const deleteTaskTC = createAsyncThunk('tasks/deleteTask', async (param: { todoListId: string, taskId: string }, {
-    dispatch,
-    rejectWithValue
-}) => {
-    dispatch(setAppStatusAC({status: 'loading'}));
-    await todoListsAPI.deleteTask(param.todoListId, param.taskId);
+const deleteTask = createAsyncThunk<{ todoListId: string, taskId: string }, { todoListId: string, taskId: string }, ThunkErrorType>('tasks/deleteTask', async (param, thunkAPI) => {
+    thunkAPI.dispatch(setAppStatus({status: 'loading'}));
     try {
-        dispatch(setAppStatusAC({status: 'succeeded'}));
+        await todoListsAPI.deleteTask(param.todoListId, param.taskId);
+        thunkAPI.dispatch(setAppStatus({status: 'succeeded'}));
         return param;
     } catch (err) {
-        const error = err as AxiosError;
-        handleServerNetworkError(error, dispatch);
-        return rejectWithValue(null);
+        return handleAsyncServerNetworkError(err, thunkAPI);
     }
 });
-
-export const updateTaskTC = createAsyncThunk('tasks/updateTask', async (param: { todoListId: string, taskId: string, domainModel: UpdateDomainTaskModelType }, {
-    dispatch,
-    getState,
-    rejectWithValue
-}) => {
-    dispatch(setAppStatusAC({status: 'loading'}));
-    const state = getState() as AppRootStateType;
+const updateTask = createAsyncThunk<{ todoListId: string, taskId: string, domainModel: UpdateDomainTaskModelType }, { todoListId: string, taskId: string, domainModel: UpdateDomainTaskModelType }, ThunkErrorType>('tasks/updateTask', async (param, thunkAPI) => {
+    thunkAPI.dispatch(setAppStatus({status: 'loading'}));
+    const state = thunkAPI.getState() as AppRootStateType;
     const task = state.tasks[param.todoListId].find(t => t.id === param.taskId);
     if (!task) {
-        //throw new Error('task not found in the state');
-        return rejectWithValue('task not found in the state');
+        return thunkAPI.rejectWithValue({errors: ['task not found in the state']});
     }
     const apiModel: UpdateTaskModelType = {
         description: task.description,
@@ -74,73 +64,63 @@ export const updateTaskTC = createAsyncThunk('tasks/updateTask', async (param: {
         deadline: task.deadline,
         ...param.domainModel
     };
-    const res = await todoListsAPI.updateTask(param.todoListId, param.taskId, apiModel);
     try {
-        if (res.resultCode === 0) {
-            dispatch(setAppStatusAC({status: 'succeeded'}));
+        const res = await todoListsAPI.updateTask(param.todoListId, param.taskId, apiModel);
+        if (res.data.resultCode === 0) {
+            thunkAPI.dispatch(setAppStatus({status: 'succeeded'}));
             return param;
         } else {
-            handleServerAppError(res, dispatch);
-            dispatch(setAppStatusAC({status: 'failed'}));
-            return rejectWithValue(null);
+            thunkAPI.dispatch(setAppStatus({status: 'failed'}));
+            return handleAsyncServerAppError(res.data, thunkAPI);
         }
     } catch (err) {
-        const error = err as AxiosError;
-        handleServerNetworkError(error, dispatch);
-        return rejectWithValue(null);
+        return handleAsyncServerNetworkError(err, thunkAPI);
     }
 });
 
-const slice = createSlice({
+export const tasksAsyncActions = {
+    fetchTasks,
+    addTask,
+    deleteTask,
+    updateTask
+}
+
+export const slice = createSlice({
     name: 'tasks',
     initialState: {} as TasksStateType,
     reducers: {},
     extraReducers: (builder) => {
-        builder.addCase(fetchTodoListsTC.fulfilled, (state, action) => {
-            action.payload.todoLists.forEach(tl => {
+        builder.addCase(todoListsActions.fetchTodoLists.fulfilled, (state, action) => {
+            action.payload.todoLists.forEach((tl: TodoListType) => {
                 state[tl.id] = [];
             });
         });
-        builder.addCase(addTodoListTC.fulfilled, (state, action) => {
-            state[action.payload.todoList.id] = [];
-        });
-        builder.addCase(deleteTodoListTC.fulfilled, (state, action) => {
-            delete state[action.payload.todoListId];
-        });
-        builder.addCase(fetchTasksTC.fulfilled, (state, action) => {
-            state[action.payload.todoListId] = action.payload.tasks;
-        });
-        builder.addCase(addTaskTC.fulfilled, (state, action) => {
-            state[action.payload.todoListId].unshift(action.payload);
-        });
-        builder.addCase(deleteTaskTC.fulfilled, (state, action) => {
-            const tasks = state[action.payload.todoListId];
-            const index = tasks.findIndex(t => t.id === action.payload.taskId);
-            if (index > -1) {
-                tasks.splice(index, 1);
-            };
-        });
-        builder.addCase(updateTaskTC.fulfilled, (state, action) => {
-            const tasks = state[action.payload.todoListId];
-            const index = tasks.findIndex(t => t.id === action.payload.taskId);
-            if (index > -1) {
-                tasks[index] = {...tasks[index], ...action.payload.domainModel};
-            };
-        });
+        builder
+            .addCase(todoListsActions.addTodoList.fulfilled, (state, action) => {
+                state[action.payload.todoList.id] = [];
+            })
+            .addCase(todoListsActions.deleteTodoList.fulfilled, (state, action) => {
+                delete state[action.payload.todoListId];
+            })
+            .addCase(fetchTasks.fulfilled, (state, action) => {
+                state[action.payload.todoListId] = action.payload.tasks;
+            })
+            .addCase(addTask.fulfilled, (state, action) => {
+                state[action.payload.todoListId].unshift(action.payload);
+            })
+            .addCase(deleteTask.fulfilled, (state, action) => {
+                const tasks = state[action.payload.todoListId];
+                const index = tasks.findIndex(t => t.id === action.payload.taskId);
+                if (index > -1) {
+                    tasks.splice(index, 1);
+                }
+            })
+            .addCase(updateTask.fulfilled, (state, action) => {
+                const tasks = state[action.payload.todoListId];
+                const index = tasks.findIndex((t: TaskType) => t.id === action.payload.taskId);
+                if (index > -1) {
+                    tasks[index] = {...tasks[index], ...action.payload.domainModel};
+                }
+            });
     }
 });
-
-export const tasksReducer = slice.reducer;
-
-// types
-export type UpdateDomainTaskModelType = {
-    description?: string,
-    title?: string,
-    status?: TaskStatuses,
-    priority?: TaskPriorities,
-    startDate?: string,
-    deadline?: string,
-}
-export type TasksStateType = {
-    [key: string]: Array<TaskType>
-}

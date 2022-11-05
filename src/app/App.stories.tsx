@@ -8,5 +8,5 @@ export default {
 }
 
 export const AppBaseExample = () => {
-    return <App demo={true} />
+    return <App />
 }

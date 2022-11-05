@@ -1,16 +1,16 @@
 import React from 'react';
 import {Provider} from 'react-redux';
-import {AppRootStateType, RootReducerType} from '../app/store';
+import {AppRootStateType, RootReducerType} from '../utils/reduxUtils.types';
 import {combineReducers} from 'redux';
-import {tasksReducer} from '../features/TodoListsList/TodoList/Task/tasksReducer';
-import {todoListsReducer} from '../features/TodoListsList/TodoList/todoListsReducer';
+import {tasksReducer} from '../features/TodoListsList';
+import {todoListsReducer} from '../features/TodoListsList';
 import { v1 } from 'uuid';
-import {TaskPriorities, TaskStatuses} from '../api/todoListsAPI';
+import {TaskPriorities, TaskStatuses} from '../api/todoListsAPI.types';
 import thunkMiddleware from 'redux-thunk';
-import {appReducer} from '../app/appReducer';
-import {authReducer} from '../features/Login/authReducer';
+import {appReducer} from '../features/Application';
+import {authReducer} from '../features/Auth';
 import {configureStore} from '@reduxjs/toolkit';
-import {HashRouter} from "react-router-dom";
+import {HashRouter} from 'react-router-dom';
 
 const rootReducer: RootReducerType = combineReducers({
     tasks: tasksReducer,

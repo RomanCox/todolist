@@ -10,19 +10,15 @@ import Button from '@mui/material/Button';
 import {FormikHelpers, useFormik} from 'formik';
 import {ErrorStyled} from './LoginStyled';
 import {useSelector} from 'react-redux';
-import {loginTC} from './authReducer';
-import {AppRootStateType, useAppDispatch} from '../../app/store';
+import {useAppDispatch} from '../../utils/reduxUtils';
 import {Navigate} from 'react-router-dom';
-
-type FormValuesYype = {
-    email: string,
-    password: string,
-    rememberMe: boolean,
-}
+import {selectorIsLoggedIn} from './selectors';
+import {authActions} from './';
+import {FormikErrorType, FormValuesType} from './Login.types';
 
 export const Login = () => {
     const dispatch = useAppDispatch();
-    const isLoggedIn = useSelector<AppRootStateType, boolean>(state => state.auth.isLoggedIn)
+    const isLoggedIn = useSelector(selectorIsLoggedIn);
 
     const formik = useFormik({
         validate: (values) => {
@@ -40,13 +36,13 @@ export const Login = () => {
         initialValues: {
             email: '',
             password: '',
-            rememberMe: false,
+            rememberMe: false,  
         },
-        onSubmit: async (values: FormValuesYype, formikHelpers: FormikHelpers<FormValuesYype>) => {
-            const action = await dispatch(loginTC(values));
-            if (loginTC.rejected.match(action)) {
-                if (action.payload?.fieldsErrors?.length) {
-                    const error = action.payload.fieldsErrors[0];
+        onSubmit: async (values: FormValuesType, formikHelpers: FormikHelpers<FormValuesType>) => {
+            const resultAction = await dispatch(authActions.login(values));
+            if (authActions.login.rejected.match(resultAction)) {
+                if (resultAction.payload?.fieldsErrors?.length) {
+                    const error = resultAction.payload.fieldsErrors[0];
                     formikHelpers.setFieldError(error.field, error.error)
                 }
             }
@@ -57,7 +53,7 @@ export const Login = () => {
     })
 
     if (isLoggedIn) {
-        <Navigate to='/'/>
+        return <Navigate to='/'/>
     }
 
     return <Grid container justifyContent={'center'}>
@@ -118,9 +114,3 @@ export const Login = () => {
         </Grid>
     </Grid>
 };
-
-type FormikErrorType = {
-    email?: string,
-    password?: string,
-    rememberMe?: boolean,
-}

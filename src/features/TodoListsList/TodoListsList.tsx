@@ -1,48 +1,45 @@
 import React, {useCallback, useEffect} from 'react';
-import {AppRootStateType, useAppDispatch} from '../../app/store';
+import {AppRootStateType} from '../../utils/reduxUtils.types';
+import {useAppDispatch} from '../../utils/reduxUtils';
 import {useSelector} from 'react-redux';
-import {
-    addTodoListTC,
-    changeTodoListFilterAC,
-    changeTodoListTitleTC,
-    deleteTodoListTC,
-    fetchTodoListsTC,
-    FilterValuesType,
-    TodoListDomainType
-} from './TodoList/todoListsReducer';
-import {Grid, Paper} from '@mui/material';
+import {TodoListDomainType} from './TodoList/Todolist.types';
+import {Grid} from '@mui/material';
 import {AddItem} from '../../components/common/AddItem/AddItem';
+import {AddItemFormSubmitHelperType} from '../../components/common/AddItem/AddItem.types';
 import {Todolist} from './TodoList/Todolist';
 import {Navigate} from 'react-router-dom';
+import {authSelectors} from '../Auth';
+import {todoListsActions} from './index';
+import { TodoListContainerStyled } from './TodoListsListStyled';
+import {useActions} from '../../utils/reduxUtils';
+import {AppPropsType} from '../../app/App.types';
 
-type TodoListsListPropsType = {
-    demo?: boolean,
-}
-
-export const TodoListsList: React.FC<TodoListsListPropsType> = ({demo= false}) => {
-    const dispatch = useAppDispatch();
+export const TodoListsList: React.FC<AppPropsType> = ({demo= false}) => {
     const todoLists = useSelector<AppRootStateType, Array<TodoListDomainType>>(state => state.todoLists);
-    const isLoggedIn = useSelector<AppRootStateType, boolean>(state => state.auth.isLoggedIn);
+    const isLoggedIn = useSelector(authSelectors.selectorIsLoggedIn);
+    const dispatch = useAppDispatch();
+    const { fetchTodoLists, changeTodoListTitle } = useActions(todoListsActions);
+
+    const addTodoListHandler = useCallback(async (title: string, helper: AddItemFormSubmitHelperType) => {
+        let thunk = todoListsActions.addTodoList(title);
+        const resultAction = await dispatch(thunk);
+
+        if (todoListsActions.addTodoList.rejected.match(resultAction)) {
+            helper.setError(resultAction.payload?.errors?.length ? resultAction.payload.errors[0] : 'Some error occurred')
+        } else {
+            helper.setTitle('')
+        }
+
+    }, [todoListsActions.addTodoList]);
 
     useEffect(() => {
         if (demo || !isLoggedIn) {
             return
         }
-        dispatch(fetchTodoListsTC())
-    }, [dispatch, demo, isLoggedIn]);
-
-    const removeTodoList = useCallback((todoListId: string) => {
-        dispatch(deleteTodoListTC(todoListId));
-    }, [dispatch]);
-    const addTodoList = useCallback((title: string) => {
-        dispatch(addTodoListTC(title));
-    }, [dispatch]);
-    const changeTodoListTitle = useCallback((todoListId: string, newTitle: string) => {
-        dispatch(changeTodoListTitleTC({id: todoListId, title: newTitle}));
-    }, [dispatch]);
-    const changeFilter = useCallback((todoListId: string, value: FilterValuesType) => {
-        dispatch(changeTodoListFilterAC({id: todoListId, filter: value}));
-    }, [dispatch]);
+        if (!todoLists.length) {
+            fetchTodoLists();
+        }
+    }, [demo, isLoggedIn, fetchTodoLists, todoLists]);
 
     if (!isLoggedIn) {
         return <Navigate to={'/login'} />
@@ -50,20 +47,18 @@ export const TodoListsList: React.FC<TodoListsListPropsType> = ({demo= false}) =
 
     return <>
         <Grid container style={{padding: '20px'}}>
-            <AddItem addItem={addTodoList} placeHolder={'TodoList Name'}/>
+            <AddItem addItem={addTodoListHandler} placeHolder={'TodoList Name'}/>
         </Grid>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} style={{flexWrap: 'nowrap', overflowX: 'scroll'}}>
             {todoLists.map(tl => {
                 return <Grid key={tl.id} item>
-                    <Paper style={{padding: '10px'}}>
+                    <TodoListContainerStyled>
                         <Todolist
                             todoList={tl}
-                            changeFilter={changeFilter}
-                            removeTodoList={removeTodoList}
                             changeTodoListTitle={changeTodoListTitle}
                             demo={demo}
                         />
-                    </Paper>
+                    </TodoListContainerStyled>
                 </Grid>
             })}
         </Grid>

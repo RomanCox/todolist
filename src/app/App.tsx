@@ -2,32 +2,32 @@ import React, {useCallback, useEffect} from 'react';
 import {AppContainerStyled} from './AppStyled';
 import {AppBar, Button, Container, IconButton, Toolbar, Typography, LinearProgress, CircularProgress} from '@mui/material';
 import {Menu} from '@mui/icons-material';
-import {TodoListsList} from '../features/TodoListsList/TodoListsList';
+import {TodoListsList} from '../features/TodoListsList';
 import {ErrorSnackBar} from '../components/common/ErrorSnackBar/ErrorSnackBar';
 import {useSelector} from 'react-redux';
-import {AppRootStateType, useAppDispatch} from './store';
-import {AppStatusesType, initializeAppTC} from './appReducer';
+import {useActions} from '../utils/reduxUtils';
+import {appAsyncActions} from '../features/Application';
 import {Navigate, Route, Routes} from 'react-router-dom';
-import {Login} from '../features/Login/Login';
-import {logoutTC} from '../features/Login/authReducer';
+import {selectIsInitialized, selectStatus} from '../features/Application/selectors';
+import {authActions, authSelectors, Login} from '../features/Auth';
+import {AppPropsType} from './App.types';
 
-type AppPropsType = {
-    demo?: boolean,
-}
-
-export const App = ({demo = false}: AppPropsType) => {
-    const status = useSelector<AppRootStateType, AppStatusesType>(state => state.app.status);
-    const isInitialized = useSelector<AppRootStateType, boolean>(state => state.app.isInitialized);
-    const isLoggedIn = useSelector<AppRootStateType, boolean>(state => state.auth.isLoggedIn);
-    const dispatch = useAppDispatch();
+export const App = (props: AppPropsType) => {
+    const status = useSelector(selectStatus);
+    const isInitialized = useSelector(selectIsInitialized);
+    const isLoggedIn = useSelector(authSelectors.selectorIsLoggedIn);
+    const {logout} = useActions(authActions);
+    const {initializeApp} = useActions(appAsyncActions);
 
     useEffect(() => {
-        dispatch(initializeAppTC());
-    }, [dispatch])
+        if (!isInitialized) {
+            initializeApp();
+        }
+    }, [])
 
     const logoutHandler = useCallback(() => {
-        dispatch(logoutTC())
-    }, [dispatch])
+        logout();
+    }, [])
 
     if (!isInitialized) {
         return <CircularProgress style={{position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)'}}/>
@@ -50,7 +50,7 @@ export const App = ({demo = false}: AppPropsType) => {
             </AppBar>
             <Container fixed>
                 <Routes>
-                    <Route path='/' element={<TodoListsList demo={demo}/>}/>
+                    <Route path='/' element={<TodoListsList demo={false}/>}/>
                     <Route path='/login' element={<Login/>}/>
                     <Route path='/404' element={<h1>404: PAGE NOT FOUND</h1>}/>
                     <Route path='*' element={<Navigate to='/404'/>}/>

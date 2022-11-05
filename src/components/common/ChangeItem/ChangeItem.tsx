@@ -1,14 +1,9 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 import {ChangeItemContainerStyled, ErrorMessageStyled} from './ChangeItemStyled';
 import {TextField} from '@mui/material';
+import {ChangeItemPropsType} from './ChangeItem.types';
 
-type AddItemPropsType = {
-    title: string
-    changeTitle: (newTitle: string) => void,
-    setEditMode: (editMode: boolean) => void,
-}
-
-export const ChangeItem = React.memo((props: AddItemPropsType) => {
+export const ChangeItem = React.memo((props: ChangeItemPropsType) => {
     const [newTitle, setNewTitle] = useState<string>(props.title);
     const [error, setError] = useState<string | null>(null);
 

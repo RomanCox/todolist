@@ -1,51 +1,62 @@
 import React, {useCallback, useEffect} from 'react';
-import {TitleContainerStyled, TitleStyled, TodoListStyled} from './TodoListStyled';
+import {TitleContainerStyled, TitleStyled} from './TodoListStyled';
 import {AddItem} from '../../../components/common/AddItem/AddItem';
+import {AddItemFormSubmitHelperType} from '../../../components/common/AddItem/AddItem.types';
 import {EditableSpan} from '../../../components/common/EditableSpan/EditableSpan';
 import {Delete} from '@mui/icons-material';
-import {Button, IconButton} from '@mui/material';
+import {Button, IconButton, Paper} from '@mui/material';
 import {useSelector} from 'react-redux';
-import {AppRootStateType, useAppDispatch} from '../../../app/store';
-import {addTaskTC, fetchTasksTC} from './Task/tasksReducer';
+import {AppRootStateType} from '../../../utils/reduxUtils.types';
+import {useAppDispatch} from '../../../utils/reduxUtils';
 import {Task} from './Task/Task';
-import {TaskStatuses, TaskType} from '../../../api/todoListsAPI';
-import {FilterValuesType, TodoListDomainType} from './todoListsReducer';
-
-type TodoListPropsType = {
-    todoList: TodoListDomainType
-    changeFilter: (todoListId: string, value: FilterValuesType) => void,
-    removeTodoList: (todoListId: string) => void,
-    changeTodoListTitle: (todoListId: string, newTitle: string) => void,
-    demo?: boolean,
-}
+import {TaskStatuses, TaskType} from '../../../api/todoListsAPI.types';
+import {tasksActions, todoListsActions} from '../index';
+import {useActions} from '../../../utils/reduxUtils';
+import {ColorType, FilterValuesType, TodoListPropsType} from './Todolist.types';
 
 export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType) => {
+    const {deleteTodoList, changeTodoListFilter} = useActions(todoListsActions);
+    const {fetchTasks} = useActions(tasksActions);
     const tasks = useSelector<AppRootStateType, Array<TaskType>>(state => state.tasks[props.todoList.id]);
-
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (demo) {
             return;
         }
-        dispatch(fetchTasksTC(props.todoList.id))
-    }, [dispatch, demo, props.todoList.id]);
+        if (!tasks.length) {
+            fetchTasks(props.todoList.id);
+        }
+    }, [demo, props.todoList.id, fetchTasks]);
 
-    const onAllClickHandler = () => props.changeFilter(props.todoList.id, 'all')
-    const onActiveClickHandler = () => props.changeFilter(props.todoList.id, 'active')
-    const onCompletedClickHandler = () => props.changeFilter(props.todoList.id, 'completed')
+    const deleteTodoListHandler = () => deleteTodoList(props.todoList.id);
 
-    const removeTodoHandler = useCallback(() => {
-        props.removeTodoList(props.todoList.id)
-    }, [props.removeTodoList, props.todoList.id]);
+    const onFilterClickHandler = (filter: FilterValuesType) => changeTodoListFilter({id: props.todoList.id, filter})
 
-    const addItem = useCallback((title: string) => {
-        dispatch(addTaskTC({todoListId: props.todoList.id, title}))
-    }, [dispatch, props.todoList.id]);
+    const addTaskHandler = useCallback(async (title: string, helper: AddItemFormSubmitHelperType) => {
+        let thunk = tasksActions.addTask({todoListId: props.todoList.id, title});
+        const resultAction = await dispatch(thunk);
+
+        if (tasksActions.addTask.rejected.match(resultAction)) {
+            helper.setError(resultAction.payload?.errors?.length ? resultAction.payload.errors[0] : 'Some error occurred');
+        } else {
+            helper.setTitle('')
+        }
+
+    }, [props.todoList.id, tasksActions.addTask]);
 
     const changeTodoListTitle = useCallback((newTitle: string) => {
-        props.changeTodoListTitle(props.todoList.id, newTitle)
-    }, [props.todoList.id]);
+        props.changeTodoListTitle({id: props.todoList.id, title: newTitle})
+    }, [props]);
+
+    const renderFilterButton = (buttonFilter: FilterValuesType,
+                                color: ColorType,
+                                text: string) => {
+        return <Button color={color}
+                       variant={props.todoList.filter === buttonFilter ? 'outlined' : 'text'}
+                       onClick={() => onFilterClickHandler(buttonFilter)}>{text}
+        </Button>
+    }
 
     let tasksForTodo: Array<TaskType> = tasks;
 
@@ -57,25 +68,30 @@ export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType)
     }
 
     return (
-        <TodoListStyled>
+        <Paper style={{padding: '10px', position: 'relative'}}>
+            <IconButton
+                size={'small'}
+                aria-label={'delete'} onClick={deleteTodoListHandler} disabled={props.todoList.entityStatus === 'loading'}
+                style={{position: 'absolute', right: '5px', top: '5px'}}
+            >
+                <Delete fontSize={'small'}/>
+            </IconButton>
             <TitleContainerStyled>
                 <TitleStyled><EditableSpan title={props.todoList.title} changeTitle={changeTodoListTitle}/></TitleStyled>
-                <IconButton aria-label='delete' onClick={removeTodoHandler} disabled={props.todoList.entityStatus === 'loading'}>
-                    <Delete/>
-                </IconButton>
             </TitleContainerStyled>
-            <AddItem addItem={addItem} disabled={props.todoList.entityStatus === 'loading'} placeHolder={'Task Name'}/>
+            <AddItem addItem={addTaskHandler} disabled={props.todoList.entityStatus === 'loading'} placeHolder={'Task Name'}/>
             <ul>
-                {tasksForTodo.map(task => <Task key={task.id} task={task} />)}
+                {tasksForTodo.map(task => <Task
+                    key={task.id}
+                    task={task}
+                />)}
             </ul>
-            <div>
-                <Button color={'secondary'} variant={props.todoList.filter === 'all' ? 'outlined' : 'text'}
-                        onClick={onAllClickHandler}>All</Button>
-                <Button color={'primary'} variant={props.todoList.filter === 'active' ? 'outlined' : 'text'}
-                        onClick={onActiveClickHandler}>Active</Button>
-                <Button color={'error'} variant={props.todoList.filter === 'completed' ? 'outlined' : 'text'}
-                        onClick={onCompletedClickHandler}>Completed</Button>
+            {!tasksForTodo.length && <div style={{padding: '10px', color: 'grey'}}>No tasks</div>}
+            <div style={{paddingTop: '10px'}}>
+                {renderFilterButton('all', 'secondary', 'All')}
+                {renderFilterButton('active', 'primary', 'Active')}
+                {renderFilterButton('completed', 'error', 'Completed')}
             </div>
-        </TodoListStyled>
-    );
+        </Paper>
+    )
 });
