@@ -7,12 +7,12 @@ import {Grid} from '@mui/material';
 import {AddItem} from '../../components/common/AddItem/AddItem';
 import {AddItemFormSubmitHelperType} from '../../components/common/AddItem/AddItem.types';
 import {Todolist} from './TodoList/Todolist';
-import {Navigate} from 'react-router-dom';
 import {authSelectors} from '../Auth';
 import {todoListsActions} from './index';
 import { TodoListContainerStyled } from './TodoListsListStyled';
 import {useActions} from '../../utils/reduxUtils';
 import {AppPropsType} from '../../app/App.types';
+import {Navigate} from 'react-router-dom';
 
 export const TodoListsList: React.FC<AppPropsType> = ({demo= false}) => {
     const todoLists = useSelector<AppRootStateType, Array<TodoListDomainType>>(state => state.todoLists);

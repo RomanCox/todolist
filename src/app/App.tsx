@@ -7,7 +7,7 @@ import {ErrorSnackBar} from '../components/common/ErrorSnackBar/ErrorSnackBar';
 import {useSelector} from 'react-redux';
 import {useActions} from '../utils/reduxUtils';
 import {appAsyncActions} from '../features/Application';
-import {Navigate, Route, Routes} from 'react-router-dom';
+import {Navigate, Route, Routes, useNavigate} from 'react-router-dom';
 import {selectIsInitialized, selectStatus} from '../features/Application/selectors';
 import {authActions, authSelectors, Login} from '../features/Auth';
 import {AppPropsType} from './App.types';
@@ -18,6 +18,7 @@ export const App = (props: AppPropsType) => {
     const isLoggedIn = useSelector(authSelectors.selectorIsLoggedIn);
     const {logout} = useActions(authActions);
     const {initializeApp} = useActions(appAsyncActions);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!isInitialized) {
@@ -27,6 +28,7 @@ export const App = (props: AppPropsType) => {
 
     const logoutHandler = useCallback(() => {
         logout();
+        navigate('/login');
     }, [])
 
     if (!isInitialized) {
@@ -50,7 +52,7 @@ export const App = (props: AppPropsType) => {
             </AppBar>
             <Container fixed>
                 <Routes>
-                    <Route path='/' element={<TodoListsList demo={false}/>}/>
+                    <Route path='/' element={<TodoListsList demo={false} />}/>
                     <Route path='/login' element={<Login/>}/>
                     <Route path='/404' element={<h1>404: PAGE NOT FOUND</h1>}/>
                     <Route path='*' element={<Navigate to='/404'/>}/>
