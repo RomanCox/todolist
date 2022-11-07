@@ -62,6 +62,7 @@ export const App = (props: AppPropsType) => {
         <div>
             привет
             <Route path='/' element={<TodoListsList demo={false} />}/>
+            <Route path='/todolist' element={<TodoListsList demo={false} />}/>
         </div>
     );
 };
