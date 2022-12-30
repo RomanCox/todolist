@@ -38,19 +38,16 @@ export const App = (props: AppPropsType) => {
     return (
         <AppContainerStyled>
             <ErrorSnackBar/>
-            <AppBar position={'static'}>
+            <AppBar position={'fixed'} style={{width: '100%', maxWidth: '1440px', top: '0', left: '0', margin: '0 auto'}}>
                 <Toolbar>
                     <IconButton edge={'start'} color={'inherit'} aria-label={'menu'}>
                         <Menu/>
                     </IconButton>
-                    <Typography variant={'h6'}>
-                        News
-                    </Typography>
                     {isLoggedIn && <Button color={'inherit'} onClick={logoutHandler}>Log out</Button>}
                 </Toolbar>
                 {status === 'loading' && <LinearProgress/>}
             </AppBar>
-            <Container fixed>
+            <Container fixed style={{width: '100%', height: '100%', maxWidth: '1440px', margin: '64px 0 0'}}>
                 <Routes>
                     <Route path='/' element={<TodoListsList demo={false} />}/>
                     <Route path='/login' element={<Login/>}/>

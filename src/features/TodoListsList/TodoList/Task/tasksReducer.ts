@@ -8,7 +8,7 @@ import {todoListsAsyncActions as todoListsActions} from '../todoListsReducer';
 import {appActions} from '../../../Common/Actions/AppActions';
 import {handleAsyncServerAppError, handleAsyncServerNetworkError} from '../../../../utils/errorUtils';
 import {AppRootStateType, ThunkErrorType} from '../../../../utils/reduxUtils.types';
-import {TasksStateType, UpdateDomainTaskModelType} from './Task.types';
+import {ReOrderTaskModelType, TasksStateType, UpdateDomainTaskModelType} from './Task.types';
 
 const {setAppStatus} = appActions;
 
@@ -77,12 +77,28 @@ const updateTask = createAsyncThunk<{ todoListId: string, taskId: string, domain
         return handleAsyncServerNetworkError(err, thunkAPI);
     }
 });
+const reOrderTask = createAsyncThunk<{ todoListId: string, taskId: string, reOrderModel: ReOrderTaskModelType }, { todoListId: string, taskId: string, reOrderModel: ReOrderTaskModelType }, ThunkErrorType>('tasks/reOrder', async (param, thunkAPI) => {
+    thunkAPI.dispatch(setAppStatus({status: 'loading'}));
+    const state = thunkAPI.getState() as AppRootStateType;
+    const task = state.tasks[param.todoListId].find(t => t.id === param.taskId);
+    if (!task) {
+        return thunkAPI.rejectWithValue({errors: ['task not found in the state']});
+    }
+    try {
+        const res = await todoListsAPI.reOrderTask(param.todoListId, param.taskId, {putAfterItemId: task.id})
+        console.log(res.data)
+    }
+    catch (err) {
+        return handleAsyncServerNetworkError(err, thunkAPI);
+    }
+});
 
 export const tasksAsyncActions = {
     fetchTasks,
     addTask,
     deleteTask,
-    updateTask
+    updateTask,
+    reOrderTask,
 }
 
 export const slice = createSlice({
@@ -120,6 +136,13 @@ export const slice = createSlice({
                 const index = tasks.findIndex((t: TaskType) => t.id === action.payload.taskId);
                 if (index > -1) {
                     tasks[index] = {...tasks[index], ...action.payload.domainModel};
+                }
+            })
+            .addCase(reOrderTask.fulfilled, (state, action) => {
+                const tasks = state[action.payload.todoListId];
+                const index = tasks.findIndex((t: TaskType) => t.id === action.payload.taskId);
+                if (index > -1) {
+                    tasks[index] = {...tasks[index], ...action.payload.reOrderModel};
                 }
             });
     }

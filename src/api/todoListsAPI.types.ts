@@ -33,6 +33,9 @@ export type UpdateTaskModelType = {
     startDate: string,
     deadline: string,
 }
+export type ReOrderTaskType = {
+    putAfterItemId: string
+}
 export type GetTaskRequestType = {
     error: string,
     totalCount: number,

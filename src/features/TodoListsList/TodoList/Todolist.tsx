@@ -4,7 +4,7 @@ import {AddItem} from '../../../components/common/AddItem/AddItem';
 import {AddItemFormSubmitHelperType} from '../../../components/common/AddItem/AddItem.types';
 import {EditableSpan} from '../../../components/common/EditableSpan/EditableSpan';
 import {Delete} from '@mui/icons-material';
-import {Button, IconButton, Paper} from '@mui/material';
+import {Button, IconButton, Paper, Stack} from '@mui/material';
 import {useSelector} from 'react-redux';
 import {AppRootStateType} from '../../../utils/reduxUtils.types';
 import {useAppDispatch} from '../../../utils/reduxUtils';
@@ -42,7 +42,6 @@ export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType)
         } else {
             helper.setTitle('')
         }
-
     }, [props.todoList.id, tasksActions.addTask]);
 
     const changeTodoListTitle = useCallback((newTitle: string) => {
@@ -67,8 +66,42 @@ export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType)
         tasksForTodo = tasks.filter(f => f.status === TaskStatuses.Completed)
     }
 
+    // const onDragStartHandler = (e: React.DragEvent<HTMLElement>, task: TaskType) => {
+    //     console.log("start drag " + task.title)
+    // };
+    // const onDragLeaveHandler = (e: React.DragEvent<HTMLElement>) => {
+    //     console.log("start drag")
+    // };
+    // const onDragEndHandler = (e: React.DragEvent<HTMLElement>) => {
+    //     console.log("end drag")
+    // };
+    // const onDragOverHandler = (e: React.DragEvent<HTMLElement>) => {
+    //     e.preventDefault();
+    //     console.log("drag over")
+    // };
+    // const onDropHandler = (e: React.DragEvent<HTMLElement>, currentTask: TaskType) => {
+    //     e.preventDefault();
+    //     if (tasks.length) {
+    //         tasks.map(task => {
+    //             if (task.id === currentTask.id) {
+    //                 return {...task, order: currentTask.order}
+    //             }
+    //         })
+    //     }
+    // };
+    const sortTasks = (a: TaskType, b: TaskType) => {
+        if (a.order < b.order) {
+            return 1
+        } else {
+            return -1
+        }
+    }
+    if (tasksForTodo.length > 2) {
+        //console.log(tasksForTodo.sort(sortTasks))
+    }
+
     return (
-        <Paper style={{padding: '10px', position: 'relative'}}>
+        <Paper style={{height: '100%', padding: '10px', position: 'relative'}}>
             <IconButton
                 size={'small'}
                 aria-label={'delete'} onClick={deleteTodoListHandler} disabled={props.todoList.entityStatus === 'loading'}
@@ -80,12 +113,18 @@ export const Todolist = React.memo(({demo = false, ...props}: TodoListPropsType)
                 <TitleStyled><EditableSpan title={props.todoList.title} changeTitle={changeTodoListTitle}/></TitleStyled>
             </TitleContainerStyled>
             <AddItem addItem={addTaskHandler} disabled={props.todoList.entityStatus === 'loading'} placeHolder={'Task Name'}/>
-            <ul>
+            <Stack spacing={2} style={{maxHeight: 'calc(60vh - 200px)', overflowY: 'auto', marginTop: '20px'}}>
                 {tasksForTodo.map(task => <Task
                     key={task.id}
                     task={task}
+                    tasks={tasks}
+                    // onDragStart={(e: React.DragEvent<HTMLElement>) => onDragStartHandler(e, task)}
+                    // onDragLeave={(e: React.DragEvent<HTMLElement>) => onDragLeaveHandler(e)}
+                    // onDragEnd={(e: React.DragEvent<HTMLElement>) => onDragEndHandler(e)}
+                    // onDragOver={(e: React.DragEvent<HTMLElement>) => onDragOverHandler(e)}
+                    // onDrop={(e: React.DragEvent<HTMLElement>) => onDropHandler(e, task)}
                 />)}
-            </ul>
+            </Stack>
             {!tasksForTodo.length && <div style={{padding: '10px', color: 'grey'}}>No tasks</div>}
             <div style={{paddingTop: '10px'}}>
                 {renderFilterButton('all', 'secondary', 'All')}

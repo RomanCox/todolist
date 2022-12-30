@@ -1,5 +1,13 @@
 import axios, {AxiosResponse} from 'axios';
-import {GetTaskRequestType, LoginParamsType, ResponseType, TaskType, TodoListType, UpdateTaskModelType} from './todoListsAPI.types';
+import {
+    GetTaskRequestType,
+    LoginParamsType,
+    ResponseType,
+    TaskType,
+    TodoListType,
+    UpdateTaskModelType,
+    ReOrderTaskType,
+} from './todoListsAPI.types';
 
 const settings = {
     withCredentials: true,
@@ -36,6 +44,9 @@ export const todoListsAPI = {
         return instance.delete<ResponseType>(`todo-lists/${todoListId}/tasks/${taskId}`);
     },
     updateTask(todoListId: string, taskId: string, model: UpdateTaskModelType) {
+        return instance.put< UpdateTaskModelType, AxiosResponse< ResponseType< { item: TaskType } > > >(`todo-lists/${todoListId}/tasks/${taskId}`, model);
+    },
+    reOrderTask(todoListId: string, taskId: string, model: ReOrderTaskType) {
         return instance.put< UpdateTaskModelType, AxiosResponse< ResponseType< { item: TaskType } > > >(`todo-lists/${todoListId}/tasks/${taskId}`, model);
     },
 }
